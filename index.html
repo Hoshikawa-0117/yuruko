@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>ゆるこ</title>
+<link rel="apple-touch-icon" href="icon.png">
+<link rel="icon" type="image/png" href="icon-192.png">
+<link rel="manifest" href="manifest.json">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="ゆるこ">
+<meta name="theme-color" content="#f06a85">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Hachi+Maru+Pop&family=Mochiy+Pop+One&family=Zen+Maru+Gothic:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#fff7ee; --paper:#ffffff; --ink:#5a4a3f; --muted:#a08f82; --line:#f3e3d3;
+  --main:#ff8fa3; --main-d:#f06a85; --sub:#8fd3c7; --accent:#ffd166; --sky:#a7c5ff;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;background:#f6e9dc;font-family:'Zen Maru Gothic',sans-serif;color:var(--ink);}
+.logo-font{font-family:'Hachi Maru Pop','Zen Maru Gothic',sans-serif;font-weight:400;}
+.app{width:100%;max-width:430px;margin:0 auto;height:100vh;display:flex;flex-direction:column;background:var(--bg);position:relative;overflow:hidden;}
+.topbar{background:var(--paper);padding:.7rem 1rem .55rem;display:flex;align-items:center;justify-content:space-between;border-bottom:2px solid var(--line);flex-shrink:0;gap:.5rem;}
+.topbar-brand{font-size:1.5rem;color:var(--main-d);letter-spacing:.04em;display:flex;align-items:center;gap:.4rem;}
+.topbar-brand svg{width:32px;height:32px;}
+.topbar-sub{font-size:.6rem;color:var(--muted);font-weight:700;flex:1;text-align:right;line-height:1.3;}
+.lockbtn{width:36px;height:36px;border-radius:50%;border:2px solid var(--line);background:var(--bg);font-size:1rem;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;-webkit-tap-highlight-color:transparent;}
+.lockbtn.on{background:var(--main-d);border-color:var(--main-d);}
+.scroll-area{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;}
+.scroll-area::-webkit-scrollbar{display:none;}
+.page{display:none;padding:1rem 1rem 1.5rem;}
+.page.active{display:block;}
+.bottom-nav{display:flex;background:var(--paper);border-top:2px solid var(--line);flex-shrink:0;padding-bottom:env(safe-area-inset-bottom);}
+.bnav-item{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:.55rem 0 .45rem;cursor:pointer;gap:.12rem;-webkit-tap-highlight-color:transparent;}
+.bnav-icon{font-size:1.35rem;line-height:1;filter:grayscale(1);opacity:.5;transition:.15s;}
+.bnav-item.active .bnav-icon{filter:none;opacity:1;transform:translateY(-1px);}
+.bnav-label{font-size:.6rem;font-weight:700;color:#c7b7aa;}
+.bnav-item.active .bnav-label{color:var(--main-d);}
+
+/* ---- common ---- */
+.sec-title{font-size:.95rem;font-weight:700;color:var(--main-d);margin:.2rem 0 .7rem;display:flex;align-items:center;gap:.4rem;}
+.sec-title small{font-size:.65rem;color:var(--muted);font-weight:700;margin-left:auto;cursor:pointer;}
+.card{background:var(--paper);border-radius:18px;border:2px solid var(--line);padding:.9rem 1rem;margin-bottom:.8rem;}
+.badge{display:inline-block;font-size:.62rem;font-weight:700;padding:.15rem .55rem;border-radius:99px;color:#fff;line-height:1.5;}
+.badge.now{background:var(--main-d);} .badge.soon{background:#58b8a8;} .badge.end{background:#c7b7aa;}
+.badge.new{background:var(--main-d);} .badge.info{background:#6fa8ff;} .badge.event{background:#f0a532;}
+.chip-row{display:flex;gap:.4rem;margin-bottom:.8rem;overflow-x:auto;padding-bottom:2px;}
+.chip-row::-webkit-scrollbar{display:none;}
+.chip{flex-shrink:0;font-size:.7rem;font-weight:700;padding:.35rem .8rem;border-radius:99px;border:2px solid var(--line);background:var(--paper);color:var(--muted);cursor:pointer;}
+.chip.on{background:var(--main-d);border-color:var(--main-d);color:#fff;}
+.empty{font-size:.78rem;color:var(--muted);text-align:center;padding:1.5rem 0;font-weight:700;}
+.ftr{text-align:center;padding:1.2rem 0 .4rem;color:#c7b7aa;font-size:.62rem;font-weight:700;line-height:1.7;}
+
+/* ---- hero ---- */
+.hero{border-radius:22px;padding:1.2rem 1.1rem 1rem;position:relative;overflow:hidden;color:#fff;margin-bottom:1rem;box-shadow:0 8px 20px -10px rgba(240,106,133,.5);cursor:pointer;min-height:150px;}
+.hero .h-sub{font-size:.68rem;font-weight:700;opacity:.9;}
+.hero .h-title{font-size:1.2rem;margin:.15rem 0 .35rem;line-height:1.35;padding-right:70px;}
+.hero .h-meta{font-size:.72rem;font-weight:700;opacity:.95;}
+.hero .h-emoji{position:absolute;right:-6px;bottom:-14px;font-size:5.5rem;opacity:.35;transform:rotate(-12deg);}
+.hero .h-photo{position:absolute;right:14px;top:14px;width:88px;height:88px;border-radius:18px;object-fit:cover;border:3px solid rgba(255,255,255,.8);box-shadow:0 4px 12px rgba(0,0,0,.15);}
+.hero .h-btn{display:inline-block;margin-top:.7rem;background:#fff;color:var(--main-d);font-size:.72rem;font-weight:700;padding:.35rem .9rem;border-radius:99px;}
+.deco{position:absolute;border-radius:50%;background:#fff;opacity:.18;pointer-events:none;}
+
+/* ---- kuji list ---- */
+.kuji-card{display:flex;gap:.8rem;align-items:center;cursor:pointer;}
+.kuji-thumb{width:64px;height:64px;border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:2rem;flex-shrink:0;overflow:hidden;}
+.kuji-thumb img{width:100%;height:100%;object-fit:cover;}
+.kuji-info{flex:1;min-width:0;}
+.k-sub{font-size:.62rem;color:var(--muted);font-weight:700;}
+.k-title{font-size:.92rem;font-weight:700;line-height:1.35;margin:.1rem 0 .25rem;}
+.k-meta{font-size:.68rem;color:var(--muted);font-weight:700;}
+.stock{margin-top:.4rem;}
+.stock-bar{height:7px;border-radius:99px;background:#f3e9df;overflow:hidden;}
+.stock-bar i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,var(--sub),var(--accent));}
+.stock-txt{font-size:.62rem;color:var(--muted);font-weight:700;margin-top:.15rem;text-align:right;}
+
+/* ---- news ---- */
+.news-row{display:flex;gap:.7rem;align-items:flex-start;padding:.7rem 0;border-bottom:1.5px dashed var(--line);cursor:pointer;}
+.news-row:last-child{border-bottom:none;}
+.news-date{font-size:.62rem;color:var(--muted);font-weight:700;flex-shrink:0;width:66px;padding-top:.2rem;}
+.news-body{flex:1;}
+.news-title{font-size:.84rem;font-weight:700;line-height:1.45;margin-top:.15rem;}
+.news-text{font-size:.74rem;color:#7a6a5e;line-height:1.7;margin-top:.25rem;display:none;white-space:pre-wrap;}
+.news-row.open .news-text{display:block;}
+
+/* ---- shops ---- */
+.shop{display:flex;gap:.8rem;align-items:flex-start;}
+.shop-ico{width:46px;height:46px;border-radius:14px;background:#fff3e0;display:flex;align-items:center;justify-content:center;font-size:1.5rem;flex-shrink:0;}
+.shop-name{font-size:.9rem;font-weight:700;}
+.shop-line{font-size:.72rem;color:#7a6a5e;line-height:1.7;}
+.shop-line b{color:var(--main-d);font-weight:700;margin-right:.3rem;}
+
+/* ---- sheets (detail / admin) ---- */
+.modal{position:absolute;inset:0;background:rgba(90,74,63,.45);display:none;align-items:flex-end;z-index:20;}
+.modal.show{display:flex;}
+.sheet{background:var(--bg);width:100%;max-height:92%;border-radius:24px 24px 0 0;overflow-y:auto;padding:1rem 1rem 1.6rem;animation:up .22s ease-out;}
+@keyframes up{from{transform:translateY(40px);opacity:0}to{transform:none;opacity:1}}
+.sheet-handle{width:40px;height:5px;border-radius:99px;background:#dccbbd;margin:0 auto .8rem;}
+.d-head{border-radius:18px;padding:1rem;color:#fff;margin-bottom:.8rem;position:relative;overflow:hidden;}
+.d-head .k-sub{color:#fff;opacity:.9;}
+.d-head .k-title{font-size:1.25rem;margin:.1rem 0 .4rem;}
+.d-head .k-meta{font-size:.72rem;font-weight:700;line-height:1.7;color:#fff;}
+.d-head .h-emoji{position:absolute;right:-4px;bottom:-16px;font-size:5rem;opacity:.35;transform:rotate(-12deg);}
+.d-photo{width:100%;border-radius:18px;border:2px solid var(--line);margin-bottom:.8rem;display:block;max-height:260px;object-fit:cover;background:#fff;}
+.note-box{font-size:.8rem;line-height:1.8;color:#7a6a5e;padding:.7rem .9rem;}
+.prize{display:flex;gap:.7rem;align-items:center;background:var(--paper);border:2px solid var(--line);border-radius:14px;padding:.6rem .7rem;margin-bottom:.5rem;}
+.prize.sold{opacity:.5;}
+.rank{width:54px;height:54px;border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;font-weight:700;flex-shrink:0;line-height:1.1;font-family:'Mochiy Pop One',sans-serif;}
+.rank .r1{font-size:1.25rem;} .rank .r2{font-size:.48rem;letter-spacing:.08em;font-family:'Zen Maru Gothic',sans-serif;}
+.p-photo{width:54px;height:54px;border-radius:12px;object-fit:cover;border:2px solid var(--line);flex-shrink:0;cursor:zoom-in;}
+.prize-name{flex:1;font-size:.84rem;font-weight:700;line-height:1.4;}
+.prize-left{font-size:.68rem;font-weight:700;color:var(--muted);text-align:right;flex-shrink:0;}
+.prize-left b{display:block;font-size:1rem;color:var(--main-d);}
+.close-btn{display:block;width:100%;margin-top:.6rem;background:var(--paper);border:2px solid var(--line);border-radius:99px;padding:.7rem;font-family:inherit;font-weight:700;color:var(--muted);font-size:.85rem;cursor:pointer;}
+.zoom{position:absolute;inset:0;background:rgba(0,0,0,.85);z-index:40;display:none;align-items:center;justify-content:center;cursor:zoom-out;}
+.zoom.show{display:flex;} .zoom img{max-width:94%;max-height:90%;border-radius:12px;}
+
+/* ---- admin ---- */
+.pw-area{text-align:center;padding:1.2rem .5rem;}
+.pw-ttl{font-size:1rem;font-weight:700;color:var(--main-d);}
+.pw-sub{font-size:.74rem;color:var(--muted);font-weight:700;margin:.3rem 0 .9rem;}
+.inp,.sel,.ta{width:100%;font-family:inherit;font-size:.88rem;font-weight:700;color:var(--ink);padding:.6rem .8rem;border:2px solid var(--line);border-radius:12px;background:#fff;outline:none;}
+.inp:focus,.sel:focus,.ta:focus{border-color:var(--main);}
+.ta{min-height:70px;resize:vertical;line-height:1.6;}
+.pw-inp{max-width:220px;margin:0 auto;text-align:center;letter-spacing:.2em;}
+.btn{font-family:inherit;font-weight:700;font-size:.85rem;border:none;border-radius:99px;padding:.65rem 1.3rem;cursor:pointer;background:var(--main-d);color:#fff;-webkit-tap-highlight-color:transparent;}
+.btn.sub{background:#fff;color:var(--muted);border:2px solid var(--line);}
+.btn.sm{font-size:.7rem;padding:.35rem .8rem;}
+.btn.danger{background:#fff;color:#e05a5a;border:2px solid #f6d0d0;}
+.btn.danger.armed{background:#e05a5a;color:#fff;border-color:#e05a5a;}
+.btn.wide{width:100%;margin-top:.5rem;}
+.pw-err{font-size:.74rem;color:#e05a5a;font-weight:700;margin-top:.6rem;display:none;}
+.stabs{display:flex;gap:.4rem;margin-bottom:.8rem;}
+.stab{flex:1;font-family:inherit;font-weight:700;font-size:.74rem;padding:.5rem .2rem;border-radius:12px;border:2px solid var(--line);background:#fff;color:var(--muted);cursor:pointer;}
+.stab.active{background:var(--main-d);border-color:var(--main-d);color:#fff;}
+.apanel{display:none;} .apanel.active{display:block;}
+.form{background:#fff;border:2px solid var(--line);border-radius:18px;padding:.9rem;margin-bottom:.9rem;}
+.form h4{font-size:.84rem;color:var(--main-d);margin-bottom:.6rem;}
+.f-row{margin-bottom:.55rem;}
+.f-lab{font-size:.66rem;color:var(--muted);font-weight:700;margin-bottom:.2rem;display:block;}
+.f-2{display:grid;grid-template-columns:1fr 1fr;gap:.5rem;}
+.f-3{display:grid;grid-template-columns:1fr 2fr 1fr;gap:.4rem;}
+.photo-pick{display:flex;align-items:center;gap:.6rem;}
+.photo-pick .pv{width:52px;height:52px;border-radius:12px;border:2px dashed var(--line);background:var(--bg);object-fit:cover;display:flex;align-items:center;justify-content:center;font-size:.6rem;color:var(--muted);font-weight:700;overflow:hidden;}
+.photo-pick .pv img{width:100%;height:100%;object-fit:cover;}
+.photo-pick input{display:none;}
+.photo-pick label.btn{font-size:.7rem;padding:.4rem .8rem;}
+.pz-row{background:var(--bg);border-radius:12px;padding:.5rem;margin-bottom:.45rem;}
+.pz-top{display:grid;grid-template-columns:62px 1fr 60px;gap:.4rem;margin-bottom:.4rem;}
+.pz-bottom{display:flex;align-items:center;justify-content:space-between;gap:.4rem;}
+.swatches{display:flex;gap:.4rem;flex-wrap:wrap;}
+.sw{width:28px;height:28px;border-radius:50%;border:3px solid #fff;box-shadow:0 0 0 2px var(--line);cursor:pointer;}
+.sw.on{box-shadow:0 0 0 3px var(--main-d);}
+.a-item{background:#fff;border:2px solid var(--line);border-radius:14px;padding:.7rem .8rem;margin-bottom:.5rem;}
+.a-head{display:flex;align-items:center;gap:.4rem;flex-wrap:wrap;}
+.a-head .t{flex:1;font-size:.84rem;font-weight:700;min-width:0;line-height:1.4;}
+.a-head .sel{width:auto;font-size:.7rem;padding:.3rem .5rem;}
+.a-pz{display:flex;align-items:center;gap:.4rem;font-size:.72rem;font-weight:700;padding:.3rem 0;border-top:1.5px dashed var(--line);}
+.a-pz .nm{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.a-pz .rk{width:26px;height:26px;border-radius:7px;color:#fff;display:flex;align-items:center;justify-content:center;font-family:'Mochiy Pop One';font-size:.8rem;flex-shrink:0;}
+.cnt{display:flex;align-items:center;gap:.25rem;}
+.cnt button{width:26px;height:26px;border-radius:50%;border:2px solid var(--line);background:#fff;font-weight:700;cursor:pointer;color:var(--main-d);font-family:inherit;}
+.cnt span{min-width:40px;text-align:center;}
+.mode{font-size:.66rem;font-weight:700;color:var(--muted);background:#fff;border:2px solid var(--line);border-radius:10px;padding:.5rem .7rem;margin-bottom:.8rem;line-height:1.6;}
+.mode.cloud{color:#3a9c89;}
+.toast{position:absolute;left:50%;bottom:90px;transform:translateX(-50%);background:var(--ink);color:#fff;font-size:.76rem;font-weight:700;padding:.5rem 1rem;border-radius:99px;opacity:0;transition:.25s;pointer-events:none;z-index:50;white-space:nowrap;}
+.toast.show{opacity:1;}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="topbar">
+    <div class="topbar-brand logo-font">
+      <svg viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="21" r="17.5" fill="#ffdbe3" stroke="#f06a85" stroke-width="2.2"/><circle cx="14.5" cy="21" r="1.5" fill="#5a4a3f"/><circle cx="25.5" cy="21" r="1.5" fill="#5a4a3f"/><path d="M18.6 26.2q1.4 1.4 2.8 0" stroke="#5a4a3f" stroke-width="1.3" fill="none" stroke-linecap="round"/><circle cx="10" cy="25.5" r="2.3" fill="#ffb3c1" opacity=".85"/><circle cx="30" cy="25.5" r="2.3" fill="#ffb3c1" opacity=".85"/><path d="M14 6.5q6-4 12 0" stroke="#f06a85" stroke-width="2" fill="none" stroke-linecap="round"/></svg>
+      <span id="brandName">ゆるこ</span>
+    </div>
+    <div class="topbar-sub" id="brandTag"></div>
+    <button class="lockbtn" id="lockBtn" title="スタッフ用">🔒</button>
+  </div>
+
+  <div class="scroll-area" id="scroll">
+    <section class="page active" id="page-home">
+      <div id="heroWrap"></div>
+      <div class="sec-title">🎫 くじ <small data-go="kuji">すべて見る ›</small></div>
+      <div id="homeKuji"></div>
+      <div class="sec-title">📰 最新ニュース <small data-go="news">もっと見る ›</small></div>
+      <div class="card" id="homeNews"></div>
+      <div class="ftr" id="homeFtr"></div>
+    </section>
+    <section class="page" id="page-kuji">
+      <div class="sec-title">🎫 くじ一覧</div>
+      <div class="chip-row" id="kujiChips">
+        <div class="chip on" data-f="all">すべて</div><div class="chip" data-f="now">発売中</div><div class="chip" data-f="soon">近日発売</div><div class="chip" data-f="end">終了</div>
+      </div>
+      <div id="kujiList"></div>
+    </section>
+    <section class="page" id="page-shop">
+      <div class="sec-title">📍 お店・開催場所</div>
+      <div id="shopList"></div>
+    </section>
+    <section class="page" id="page-news">
+      <div class="sec-title">📰 ニュース</div>
+      <div class="card" id="newsList"></div>
+    </section>
+  </div>
+
+  <nav class="bottom-nav" id="nav">
+    <div class="bnav-item active" data-p="home"><span class="bnav-icon">🏠</span><span class="bnav-label">ホーム</span></div>
+    <div class="bnav-item" data-p="kuji"><span class="bnav-icon">🎫</span><span class="bnav-label">くじ</span></div>
+    <div class="bnav-item" data-p="shop"><span class="bnav-icon">📍</span><span class="bnav-label">お店</span></div>
+    <div class="bnav-item" data-p="news"><span class="bnav-icon">📰</span><span class="bnav-label">ニュース</span></div>
+  </nav>
+
+  <!-- くじ詳細 -->
+  <div class="modal" id="modal"><div class="sheet" id="sheet"></div></div>
+  <div class="zoom" id="zoom"><img id="zoomImg" alt=""></div>
+
+  <!-- スタッフ用 -->
+  <div class="modal" id="admin"><div class="sheet" id="adminSheet">
+    <div class="sheet-handle"></div>
+    <div id="pwArea" class="pw-area">
+      <div style="font-size:2.2rem">🔒</div>
+      <div class="pw-ttl">スタッフ専用ページ</div>
+      <div class="pw-sub">パスワードを入力してください</div>
+      <input class="inp pw-inp" type="password" id="pwInp" placeholder="••••••">
+      <div style="margin-top:.7rem"><button class="btn" id="pwGo">ログイン</button></div>
+      <div class="pw-err" id="pwErr">パスワードがちがいます🙅</div>
+      <div style="margin-top:1rem"><button class="btn sub sm" id="pwClose">とじる</button></div>
+    </div>
+    <div id="dash" style="display:none">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.7rem">
+        <div style="font-size:.9rem;font-weight:700;color:var(--main-d)">🛠 スタッフページ</div>
+        <div style="display:flex;gap:.4rem"><button class="btn sub sm" id="logoutBtn">ログアウト</button><button class="btn sub sm" id="dashClose">とじる</button></div>
+      </div>
+      <div class="mode" id="modeBox"></div>
+      <div class="stabs">
+        <button class="stab active" data-t="kuji">🎫 くじ</button>
+        <button class="stab" data-t="shops">📍 お店</button>
+        <button class="stab" data-t="news">📰 ニュース</button>
+      </div>
+
+      <!-- くじ -->
+      <div class="apanel active" id="ap-kuji">
+        <div class="form">
+          <h4 id="k-form-title">➕ くじを追加</h4>
+          <div class="f-row f-2">
+            <div><span class="f-lab">第○弾</span><input class="inp" id="k-sub" placeholder="第3弾"></div>
+            <div><span class="f-lab">状態</span><select class="sel" id="k-status"><option value="now">発売中</option><option value="soon">近日発売</option><option value="end">終了</option></select></div>
+          </div>
+          <div class="f-row"><span class="f-lab">くじの名前</span><input class="inp" id="k-title" placeholder="例：ゆるこ クリスマスくじ"></div>
+          <div class="f-row f-2">
+            <div><span class="f-lab">値段</span><input class="inp" id="k-price" placeholder="1回 100円"></div>
+            <div><span class="f-lab">日にち</span><input class="inp" id="k-date" placeholder="12月20日(土) 発売"></div>
+          </div>
+          <div class="f-row"><span class="f-lab">場所</span><input class="inp" id="k-place" placeholder="ゆるこ本店"></div>
+          <div class="f-row"><span class="f-lab">ひとこと</span><input class="inp" id="k-note" placeholder="どんなくじ？"></div>
+          <div class="f-row f-2">
+            <div><span class="f-lab">色</span><div class="swatches" id="k-colors"></div></div>
+            <div><span class="f-lab">絵文字（写真がないとき）</span><input class="inp" id="k-emoji" placeholder="🎀" maxlength="4"></div>
+          </div>
+          <div class="f-row"><span class="f-lab">ぜんぶの景品の写真（なくてもOK）</span>
+            <div class="photo-pick"><div class="pv" id="k-photo-pv">なし</div><label class="btn sub" for="k-photo">📷 えらぶ</label><input type="file" id="k-photo" accept="image/*"><button class="btn sub sm" data-clear="k-photo" type="button">×</button></div>
+          </div>
+          <div class="f-row"><span class="f-lab">賞（上から順にならびます）</span><div id="pz-rows"></div>
+            <button class="btn sub sm" id="pz-add" type="button">＋ 賞をふやす</button></div>
+          <button class="btn wide" id="k-save">このくじを追加する</button><button class="btn sub wide" id="k-cancel" style="display:none">編集をやめる</button>
+        </div>
+        <div class="sec-title" style="font-size:.84rem">登録ずみのくじ（のこり個数もここで）</div>
+        <div id="a-kuji"></div>
+      </div>
+
+      <!-- お店 -->
+      <div class="apanel" id="ap-shops">
+        <div class="form">
+          <h4 id="s-form-title">➕ お店・開催場所を追加</h4>
+          <div class="f-row f-2">
+            <div><span class="f-lab">名前</span><input class="inp" id="s-name" placeholder="ゆるこ本店"></div>
+            <div><span class="f-lab">絵文字</span><input class="inp" id="s-emoji" placeholder="🏪" maxlength="4"></div>
+          </div>
+          <div class="f-row"><span class="f-lab">場所</span><input class="inp" id="s-place" placeholder="学校のそばの公園"></div>
+          <div class="f-row"><span class="f-lab">時間</span><input class="inp" id="s-time" placeholder="土日 10:00〜12:00"></div>
+          <div class="f-row"><span class="f-lab">メモ</span><input class="inp" id="s-note" placeholder="雨の日はおやすみ"></div>
+          <button class="btn wide" id="s-save">このお店を追加する</button><button class="btn sub wide" id="s-cancel" style="display:none">編集をやめる</button>
+        </div>
+        <div class="sec-title" style="font-size:.84rem">登録ずみのお店</div>
+        <div id="a-shops"></div>
+      </div>
+
+      <!-- ニュース -->
+      <div class="apanel" id="ap-news">
+        <div class="form">
+          <h4 id="n-form-title">➕ ニュースを追加</h4>
+          <div class="f-row f-2">
+            <div><span class="f-lab">日にち</span><input class="inp" id="n-date" type="date"></div>
+            <div><span class="f-lab">種類</span><select class="sel" id="n-tag"><option value="new">NEW</option><option value="info">お知らせ</option><option value="event">イベント</option></select></div>
+          </div>
+          <div class="f-row"><span class="f-lab">タイトル</span><input class="inp" id="n-title" placeholder="第3弾、発売決定！"></div>
+          <div class="f-row"><span class="f-lab">ほんぶん</span><textarea class="ta" id="n-body" placeholder="くわしい内容"></textarea></div>
+          <button class="btn wide" id="n-save">このニュースを追加する</button><button class="btn sub wide" id="n-cancel" style="display:none">編集をやめる</button>
+        </div>
+        <div class="sec-title" style="font-size:.84rem">登録ずみのニュース</div>
+        <div id="a-news"></div>
+      </div>
+    </div>
+  </div></div>
+  <div class="toast" id="toast"></div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="data.js"></script>
+<script>
+const D = window.YURUKO;
+const $ = s => document.querySelector(s);
+const STATUS = { now:"発売中", soon:"近日発売", end:"終了" };
+const TAG = { new:"NEW", info:"お知らせ", event:"イベント" };
+const RANK_COLOR = { S:"linear-gradient(135deg,#f6c445,#e59a12)", A:"#f05a6e", B:"#ff8c42", C:"#f2b705", D:"#5cc08b", E:"#4f9ff0", F:"#9b7bea", G:"#e072c0", H:"#7a8ca0", I:"#5ab0c8", J:"#b58c5a", K:"#8a9a5b", L:"#c06c84" };
+const RANKS = ["S","A","B","C","D","E","F","G","H","I","J","K","L"];
+const COLORS = ["#ff8fa3","#8fd3c7","#ffd166","#a7c5ff","#c9c3ff","#ffb380","#9be3a0","#f4a6d7"];
+const esc = s => String(s??"").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const sum = (arr, f) => arr.reduce((a,x)=>a+(Number(f(x))||0),0);
+const rankOf = p => String(p.rank||"").replace(/賞|prize/ig,"").trim().toUpperCase() || "?";
+const num = v => Math.max(0, parseInt(v,10)||0);
+function toast(m){ const t=$("#toast"); t.textContent=m; t.classList.add("show"); clearTimeout(t._h); t._h=setTimeout(()=>t.classList.remove("show"),1800); }
+
+/* ================= データ保存（Supabase or この端末） ================= */
+const SB = (D.supabase && D.supabase.url && D.supabase.key && window.supabase) ? supabase.createClient(D.supabase.url, D.supabase.key) : null;
+const TABLE = (D.supabase && D.supabase.table) || "yuruko_items";
+const LS = "yuruko_items_v1";
+let mode = "local";
+let items = { kuji:[], shops:[], news:[] };
+const readLS = () => { try { return JSON.parse(localStorage.getItem(LS)||"[]"); } catch(e){ return []; } };
+const writeLS = rows => { try { localStorage.setItem(LS, JSON.stringify(rows)); return true; } catch(e){ alert("この端末の保存がいっぱいです（写真が多すぎるかも）。古いものを消すか、Supabaseにつないでください。"); return false; } };
+function setRows(rows){
+  items = { kuji:[], shops:[], news:[] };
+  rows.forEach(r => { if(items[r.kind]) items[r.kind].push(Object.assign({}, r.data, { id:r.id })); });
+  const ord = { now:0, soon:1, end:2 };
+  items.kuji.sort((a,b)=> (ord[a.status]??9)-(ord[b.status]??9) || b.id-a.id);
+  items.news.sort((a,b)=> String(b.date).localeCompare(String(a.date)) || b.id-a.id);
+  items.shops.sort((a,b)=> a.id-b.id);
+  renderAll();
+}
+async function refetch(){
+  if(mode==="cloud"){ const {data,error} = await SB.from(TABLE).select("*"); if(!error) setRows(data||[]); }
+  else setRows(readLS());
+}
+async function insertRows(rows){
+  if(mode==="cloud"){ const {error} = await SB.from(TABLE).insert(rows); if(error){ alert("保存できませんでした: "+error.message); return false; } await refetch(); return true; }
+  const arr = readLS(); arr.push(...rows); if(!writeLS(arr)) return false; setRows(arr); return true;
+}
+async function updateRow(id, data){
+  if(mode==="cloud"){ const {error} = await SB.from(TABLE).update({data}).eq("id",id); if(error) alert(error.message); await refetch(); return; }
+  const arr = readLS().map(r => r.id===id ? Object.assign({}, r, {data}) : r); writeLS(arr); setRows(arr);
+}
+async function removeRow(id){
+  if(mode==="cloud"){ const {error} = await SB.from(TABLE).delete().eq("id",id); if(error) alert(error.message); await refetch(); return; }
+  const arr = readLS().filter(r => r.id!==id); writeLS(arr); setRows(arr);
+}
+let idSeq = Date.now();
+const newId = () => ++idSeq;
+function stripId(o){ const c = Object.assign({}, o); delete c.id; return c; }
+async function seedIfEmpty(){
+  const rows = []; ["kuji","shops","news"].forEach(k => ((D.seed&&D.seed[k])||[]).forEach(d => rows.push({ id:newId(), kind:k, data:d })));
+  if(rows.length) await insertRows(rows);
+}
+async function init(){
+  if(SB){
+    const {data,error} = await SB.from(TABLE).select("*");
+    if(!error){ mode="cloud"; setRows(data||[]); if(!(data||[]).length) await seedIfEmpty();
+      SB.channel("yuruko").on("postgres_changes",{event:"*",schema:"public",table:TABLE},()=>refetch()).subscribe(); return; }
+    console.warn("Supabase未接続（テーブルなし？）→ 端末保存モード:", error.message);
+  }
+  mode="local"; const arr=readLS(); if(arr.length) setRows(arr); else await seedIfEmpty();
+  if(!readLS().length) renderAll();
+}
+
+/* ================= お客さん側の画面 ================= */
+function stockHtml(k){
+  const t = sum(k.prizes||[], p=>p.total), l = sum(k.prizes||[], p=>p.left);
+  if(!t) return "";
+  const pct = Math.max(0, Math.min(100, Math.round(l/t*100)));
+  return `<div class="stock"><div class="stock-bar"><i style="width:${pct}%"></i></div><div class="stock-txt">のこり ${l} / ${t} 個</div></div>`;
+}
+const thumb = k => k.photo ? `<img src="${k.photo}" alt="">` : esc(k.emoji||"🎫");
+function kujiCard(k){
+  return `<div class="card kuji-card" data-id="${k.id}">
+    <div class="kuji-thumb" style="background:${esc(k.color||'#ff8fa3')}33">${thumb(k)}</div>
+    <div class="kuji-info">
+      <div class="k-sub">${esc(k.sub)} <span class="badge ${esc(k.status)}">${STATUS[k.status]||""}</span></div>
+      <div class="k-title">${esc(k.title)}</div>
+      <div class="k-meta">${esc(k.price)}${k.date?" ・ "+esc(k.date):""}</div>
+      ${k.status==="end" ? "" : stockHtml(k)}
+    </div></div>`;
+}
+function newsRow(n){
+  return `<div class="news-row"><div class="news-date">${esc(n.date).replace(/-/g,"/")}</div>
+    <div class="news-body"><span class="badge ${esc(n.tag)}">${TAG[n.tag]||"お知らせ"}</span>
+    <div class="news-title">${esc(n.title)}</div><div class="news-text">${esc(n.body)}</div></div></div>`;
+}
+function renderAll(){
+  $("#brandName").textContent = D.brand.name; $("#brandTag").textContent = D.brand.tagline; document.title = D.brand.name;
+  const feat = items.kuji.find(k=>k.status==="now") || items.kuji.find(k=>k.status==="soon") || items.kuji[0];
+  $("#heroWrap").innerHTML = feat ? `<div class="hero" data-id="${feat.id}" style="background:linear-gradient(135deg,${esc(feat.color||'#ff8fa3')},${esc(feat.color||'#ff8fa3')}bb)">
+      <div class="deco" style="width:120px;height:120px;left:-40px;top:-50px"></div>
+      <div class="h-sub">${esc(feat.sub)} ／ ${STATUS[feat.status]||""}</div>
+      <div class="h-title logo-font">${esc(feat.title)}</div>
+      <div class="h-meta">${esc(feat.price)}<br>${esc(feat.date)}</div>
+      <span class="h-btn">賞をみる ›</span>
+      ${feat.photo ? `<img class="h-photo" src="${feat.photo}" alt="">` : `<div class="h-emoji">${esc(feat.emoji||"🎫")}</div>`}</div>` : "";
+  $("#homeKuji").innerHTML = items.kuji.filter(k=>k.status!=="end").slice(0,3).map(kujiCard).join("") || `<div class="empty">まだくじがありません</div>`;
+  $("#homeNews").innerHTML = items.news.slice(0,3).map(newsRow).join("") || `<div class="empty">ニュースはまだありません</div>`;
+  $("#homeFtr").innerHTML = `© ${esc(D.brand.name)}<br>${esc(D.brand.character||"")}`;
+  const f = document.querySelector("#kujiChips .chip.on")?.dataset.f || "all";
+  renderKuji(f); renderNews(); renderShops(); renderAdminLists();
+}
+function renderKuji(f="all"){
+  const list = items.kuji.filter(k=>f==="all"||k.status===f);
+  $("#kujiList").innerHTML = list.map(kujiCard).join("") || `<div class="empty">このカテゴリのくじはありません</div>`;
+}
+function renderNews(){ $("#newsList").innerHTML = items.news.map(newsRow).join("") || `<div class="empty">ニュースはまだありません</div>`; }
+function renderShops(){
+  $("#shopList").innerHTML = items.shops.map(s=>`<div class="card shop"><div class="shop-ico">${esc(s.emoji||"🏪")}</div><div>
+    <div class="shop-name">${esc(s.name)}</div>
+    ${s.place?`<div class="shop-line"><b>場所</b>${esc(s.place)}</div>`:""}
+    ${s.time?`<div class="shop-line"><b>時間</b>${esc(s.time)}</div>`:""}
+    ${s.note?`<div class="shop-line"><b>メモ</b>${esc(s.note)}</div>`:""}</div></div>`).join("") || `<div class="empty">お店の情報はまだありません</div>`;
+}
+function rankBox(p, small){
+  const r = rankOf(p);
+  if(small) return `<div class="rk" style="background:${RANK_COLOR[r]||'#999'}">${esc(r)}</div>`;
+  return `<div class="rank" style="background:${RANK_COLOR[r]||'#999'}${r==='S'?';box-shadow:0 0 0 3px #ffe9a8':''}"><span class="r1">${esc(r)}</span><span class="r2">PRIZE</span></div>`;
+}
+function openDetail(id){
+  const k = items.kuji.find(x=>x.id==id); if(!k) return;
+  const prizes = (k.prizes||[]).map(p=>`<div class="prize ${num(p.left)===0?'sold':''}">${rankBox(p)}
+      ${p.photo?`<img class="p-photo" src="${p.photo}" data-zoom="1" alt="">`:""}
+      <div class="prize-name">${esc(p.name)}</div>
+      <div class="prize-left">${num(p.left)===0?'<b>終了</b>':`<b>${num(p.left)}</b>/ ${num(p.total)}個`}</div></div>`).join("");
+  $("#sheet").innerHTML = `<div class="sheet-handle"></div>
+    <div class="d-head" style="background:linear-gradient(135deg,${esc(k.color||'#ff8fa3')},${esc(k.color||'#ff8fa3')}bb)">
+      <div class="k-sub">${esc(k.sub)} <span class="badge" style="background:rgba(255,255,255,.3)">${STATUS[k.status]||""}</span></div>
+      <div class="k-title logo-font">${esc(k.title)}</div>
+      <div class="k-meta">${k.price?"💰 "+esc(k.price)+"<br>":""}${k.date?"📅 "+esc(k.date)+"<br>":""}${k.place?"📍 "+esc(k.place):""}</div>
+      ${k.photo?"":`<div class="h-emoji">${esc(k.emoji||"🎫")}</div>`}</div>
+    ${k.photo?`<img class="d-photo" src="${k.photo}" data-zoom="1" alt="">`:""}
+    ${k.note?`<div class="card note-box">${esc(k.note)}</div>`:""}
+    ${k.status!=="end"?stockHtml(k):""}
+    <div class="sec-title" style="margin-top:.8rem">🏆 PRIZE 一覧</div>${prizes || '<div class="empty">賞はまだ登録されていません</div>'}
+    <button class="close-btn" id="closeBtn">とじる</button>`;
+  $("#modal").classList.add("show");
+}
+function showPage(p){
+  document.querySelectorAll(".page").forEach(e=>e.classList.toggle("active", e.id==="page-"+p));
+  document.querySelectorAll(".bnav-item").forEach(e=>e.classList.toggle("active", e.dataset.p===p));
+  $("#scroll").scrollTop = 0;
+}
+
+/* ================= スタッフ用ページ ================= */
+let authed = false;
+function openAdmin(){ $("#admin").classList.add("show"); $("#pwArea").style.display = authed?"none":"block"; $("#dash").style.display = authed?"block":"none"; if(!authed) setTimeout(()=>$("#pwInp").focus(),100); renderAdminLists(); }
+function closeAdmin(){ $("#admin").classList.remove("show"); }
+function checkPw(){
+  if($("#pwInp").value === String(D.adminPassword)){ authed=true; $("#pwErr").style.display="none"; $("#pwInp").value=""; $("#lockBtn").classList.add("on"); $("#lockBtn").textContent="🔓"; openAdmin(); }
+  else { $("#pwErr").style.display="block"; }
+}
+function logout(){ authed=false; $("#lockBtn").classList.remove("on"); $("#lockBtn").textContent="🔒"; openAdmin(); }
+function modeText(){
+  $("#modeBox").className = "mode "+(mode==="cloud"?"cloud":"");
+  $("#modeBox").innerHTML = mode==="cloud"
+    ? "☁️ みんなのスマホに同じ内容が出るモード（Supabase接続中）"
+    : "📱 <b>この端末だけ</b>に保存するモード。ほかの人のスマホには出ません。<br>パパに docs/sql/001_yuruko.sql をSupabaseで実行してもらうと、みんなに出るようになります。";
+}
+// 写真 → 小さくしてデータに
+function fileToDataUrl(file, max=900){
+  return new Promise(res=>{
+    if(!file) return res("");
+    const img = new Image(), u = URL.createObjectURL(file);
+    img.onload = () => { const r = Math.min(1, max/Math.max(img.width,img.height));
+      const c = document.createElement("canvas"); c.width=Math.round(img.width*r); c.height=Math.round(img.height*r);
+      c.getContext("2d").drawImage(img,0,0,c.width,c.height); URL.revokeObjectURL(u); res(c.toDataURL("image/jpeg",.82)); };
+    img.onerror = () => { URL.revokeObjectURL(u); res(""); };
+    img.src = u;
+  });
+}
+const photoStore = {}; // input id → dataURL
+async function bindPhoto(inputEl, pvEl){
+  inputEl.addEventListener("change", async () => {
+    const d = await fileToDataUrl(inputEl.files[0]); photoStore[inputEl.id] = d;
+    pvEl.innerHTML = d ? `<img src="${d}" alt="">` : "なし";
+  });
+}
+function clearPhoto(id){ const i=document.getElementById(id); if(i) i.value=""; photoStore[id]=""; const pv=document.getElementById(id+"-pv"); if(pv) pv.textContent="なし"; }
+let selColor = COLORS[0];
+function renderSwatches(){ $("#k-colors").innerHTML = COLORS.map(c=>`<div class="sw ${c===selColor?'on':''}" data-c="${c}" style="background:${c}"></div>`).join(""); }
+let pzSeq = 0;
+function addPrizeRow(rank, p){
+  const id = "pz"+(++pzSeq);
+  const row = document.createElement("div"); row.className="pz-row"; row.id=id;
+  if(p){ row.dataset.left = num(p.left); row.dataset.total = num(p.total); }
+  row.innerHTML = `<div class="pz-top">
+      <select class="sel pz-rank">${RANKS.map(r=>`<option ${r===rank?'selected':''}>${r}</option>`).join("")}</select>
+      <input class="inp pz-name" placeholder="景品の名前" value="${p?esc(p.name):""}">
+      <input class="inp pz-total" type="number" min="0" placeholder="個数" inputmode="numeric" value="${p?num(p.total):""}">
+    </div>
+    <div class="pz-bottom">
+      <div class="photo-pick"><div class="pv" id="${id}-photo-pv">なし</div><label class="btn sub" for="${id}-photo">📷 写真</label><input type="file" id="${id}-photo" accept="image/*"><button class="btn sub sm" data-clear="${id}-photo" type="button">×</button></div>
+      <button class="btn danger sm pz-del" type="button">この賞を消す</button>
+    </div>`;
+  $("#pz-rows").appendChild(row);
+  bindPhoto(row.querySelector(`#${id}-photo`), row.querySelector(`#${id}-photo-pv`));
+  if(p && p.photo){ photoStore[id+"-photo"] = p.photo; row.querySelector(`#${id}-photo-pv`).innerHTML = `<img src="${p.photo}" alt="">`; }
+}
+function resetPrizeRows(){ $("#pz-rows").innerHTML=""; ["S","A","B","C"].forEach(addPrizeRow); }
+const editing = { kuji:null, shops:null, news:null };
+function setEditMode(kind, item){
+  const P = { kuji:"k", shops:"s", news:"n" }[kind];
+  const names = { kuji:"くじ", shops:"お店", news:"ニュース" };
+  editing[kind] = item ? item.id : null;
+  $(`#${P}-form-title`).textContent = item ? `✏️ ${names[kind]}を編集中` : `➕ ${names[kind]}を追加`;
+  $(`#${P}-save`).textContent = item ? "この内容で保存する" : `この${names[kind]}を追加する`;
+  $(`#${P}-cancel`).style.display = item ? "block" : "none";
+}
+function resetKujiForm(){
+  ["k-sub","k-title","k-price","k-date","k-place","k-note","k-emoji"].forEach(i=>$("#"+i).value="");
+  $("#k-status").value="now"; selColor=COLORS[0]; renderSwatches(); clearPhoto("k-photo"); resetPrizeRows(); setEditMode("kuji", null);
+}
+function resetShopForm(){ ["s-name","s-emoji","s-place","s-time","s-note"].forEach(i=>$("#"+i).value=""); setEditMode("shops", null); }
+function resetNewsForm(){ $("#n-title").value=""; $("#n-body").value=""; $("#n-tag").value="new"; $("#n-date").value=new Date().toISOString().slice(0,10); setEditMode("news", null); }
+function startEdit(kind, id){
+  const item = items[kind].find(x=>x.id==id); if(!item) return;
+  document.querySelector(`.stab[data-t="${kind}"]`).click();
+  if(kind==="kuji"){
+    $("#k-sub").value=item.sub||""; $("#k-title").value=item.title||""; $("#k-status").value=item.status||"now";
+    $("#k-price").value=item.price||""; $("#k-date").value=item.date||""; $("#k-place").value=item.place||""; $("#k-note").value=item.note||"";
+    $("#k-emoji").value=item.emoji||""; selColor=item.color||COLORS[0]; if(!COLORS.includes(selColor)) COLORS.push(selColor); renderSwatches();
+    clearPhoto("k-photo"); if(item.photo){ photoStore["k-photo"]=item.photo; $("#k-photo-pv").innerHTML=`<img src="${item.photo}" alt="">`; }
+    $("#pz-rows").innerHTML=""; (item.prizes||[]).forEach(p=>addPrizeRow(rankOf(p), p)); if(!(item.prizes||[]).length) resetPrizeRows();
+  } else if(kind==="shops"){
+    $("#s-name").value=item.name||""; $("#s-emoji").value=item.emoji||""; $("#s-place").value=item.place||""; $("#s-time").value=item.time||""; $("#s-note").value=item.note||"";
+  } else {
+    $("#n-date").value=item.date||""; $("#n-tag").value=item.tag||"new"; $("#n-title").value=item.title||""; $("#n-body").value=item.body||"";
+  }
+  setEditMode(kind, item); $("#adminSheet").scrollTop = 0; toast("編集モードです");
+}
+async function saveKuji(){
+  const title = $("#k-title").value.trim(); if(!title){ toast("くじの名前を入れてね"); return; }
+  const prizes = [...document.querySelectorAll("#pz-rows .pz-row")].map(r=>{
+    const name = r.querySelector(".pz-name").value.trim(); if(!name) return null;
+    const total = num(r.querySelector(".pz-total").value);
+    let left = total;
+    if(r.dataset.left !== undefined){ left = Math.max(0, Math.min(total, num(r.dataset.left) + (total - num(r.dataset.total)))); }
+    return { rank:r.querySelector(".pz-rank").value, name, total, left, photo: photoStore[r.id+"-photo"]||"" };
+  }).filter(Boolean);
+  const data = { title, sub:$("#k-sub").value.trim(), status:$("#k-status").value, price:$("#k-price").value.trim(), date:$("#k-date").value.trim(),
+    place:$("#k-place").value.trim(), note:$("#k-note").value.trim(), color:selColor, emoji:$("#k-emoji").value.trim()||"🎫", photo:photoStore["k-photo"]||"", prizes };
+  if(editing.kuji){ await updateRow(editing.kuji, data); resetKujiForm(); toast("保存しました✅"); return; }
+  if(await insertRows([{ id:newId(), kind:"kuji", data }])){ resetKujiForm(); toast("くじを追加しました🎉"); }
+}
+async function saveShop(){
+  const name = $("#s-name").value.trim(); if(!name){ toast("お店の名前を入れてね"); return; }
+  const data = { name, emoji:$("#s-emoji").value.trim()||"🏪", place:$("#s-place").value.trim(), time:$("#s-time").value.trim(), note:$("#s-note").value.trim() };
+  if(editing.shops){ await updateRow(editing.shops, data); resetShopForm(); toast("保存しました✅"); return; }
+  if(await insertRows([{ id:newId(), kind:"shops", data }])){ resetShopForm(); toast("お店を追加しました🎉"); }
+}
+async function saveNews(){
+  const title = $("#n-title").value.trim(); if(!title){ toast("タイトルを入れてね"); return; }
+  const data = { date: $("#n-date").value || new Date().toISOString().slice(0,10), tag:$("#n-tag").value, title, body:$("#n-body").value.trim() };
+  if(editing.news){ await updateRow(editing.news, data); resetNewsForm(); toast("保存しました✅"); return; }
+  if(await insertRows([{ id:newId(), kind:"news", data }])){ resetNewsForm(); toast("ニュースを追加しました🎉"); }
+}
+function renderAdminLists(){
+  if(!$("#admin").classList.contains("show")) return;
+  modeText();
+  $("#a-kuji").innerHTML = items.kuji.map(k=>`<div class="a-item" data-aid="${k.id}">
+    <div class="a-head"><div class="kuji-thumb" style="width:40px;height:40px;border-radius:10px;font-size:1.3rem;background:${esc(k.color||'#ff8fa3')}33">${thumb(k)}</div>
+      <div class="t">${esc(k.sub)} ${esc(k.title)}</div>
+      <select class="sel" data-status="${k.id}">${Object.keys(STATUS).map(s=>`<option value="${s}" ${k.status===s?'selected':''}>${STATUS[s]}</option>`).join("")}</select>
+      <button class="btn sub sm" data-edit="kuji:${k.id}">編集</button><button class="btn danger sm" data-del="${k.id}">消す</button></div>
+    ${(k.prizes||[]).map((p,i)=>`<div class="a-pz">${rankBox(p,true)}<div class="nm">${esc(p.name)}</div>
+      <div class="cnt"><button data-left="${k.id}:${i}:-1">−</button><span>${num(p.left)} / ${num(p.total)}</span><button data-left="${k.id}:${i}:1">＋</button></div></div>`).join("")}
+  </div>`).join("") || `<div class="empty">まだありません</div>`;
+  $("#a-shops").innerHTML = items.shops.map(s=>`<div class="a-item"><div class="a-head"><div class="t">${esc(s.emoji||"🏪")} ${esc(s.name)}<br><span style="font-size:.68rem;color:var(--muted)">${esc(s.place)} ${esc(s.time)}</span></div><button class="btn sub sm" data-edit="shops:${s.id}">編集</button><button class="btn danger sm" data-del="${s.id}">消す</button></div></div>`).join("") || `<div class="empty">まだありません</div>`;
+  $("#a-news").innerHTML = items.news.map(n=>`<div class="a-item"><div class="a-head"><div class="t"><span class="badge ${esc(n.tag)}">${TAG[n.tag]||""}</span> ${esc(n.title)}<br><span style="font-size:.68rem;color:var(--muted)">${esc(n.date)}</span></div><button class="btn sub sm" data-edit="news:${n.id}">編集</button><button class="btn danger sm" data-del="${n.id}">消す</button></div></div>`).join("") || `<div class="empty">まだありません</div>`;
+}
+function findAny(id){ for(const k of ["kuji","shops","news"]){ const x = items[k].find(i=>i.id==id); if(x) return {kind:k, item:x}; } return null; }
+
+/* ================= イベント ================= */
+$("#nav").addEventListener("click", e=>{ const it=e.target.closest(".bnav-item"); if(it) showPage(it.dataset.p); });
+document.querySelectorAll("[data-go]").forEach(el=>el.onclick=()=>showPage(el.dataset.go));
+$("#kujiChips").addEventListener("click", e=>{ const c=e.target.closest(".chip"); if(!c) return;
+  document.querySelectorAll("#kujiChips .chip").forEach(x=>x.classList.toggle("on",x===c)); renderKuji(c.dataset.f); });
+$("#lockBtn").onclick = openAdmin;
+$("#pwGo").onclick = checkPw; $("#pwInp").addEventListener("keydown", e=>{ if(e.key==="Enter") checkPw(); });
+$("#pwClose").onclick = closeAdmin; $("#dashClose").onclick = closeAdmin; $("#logoutBtn").onclick = logout;
+$("#admin").addEventListener("click", e=>{ if(e.target.id==="admin") closeAdmin(); });
+document.querySelectorAll(".stab").forEach(b=>b.onclick=()=>{ document.querySelectorAll(".stab").forEach(x=>x.classList.toggle("active",x===b)); document.querySelectorAll(".apanel").forEach(p=>p.classList.toggle("active",p.id==="ap-"+b.dataset.t)); });
+$("#k-colors").addEventListener("click", e=>{ const s=e.target.closest(".sw"); if(!s) return; selColor=s.dataset.c; renderSwatches(); });
+$("#pz-add").onclick = ()=>{ const used=[...document.querySelectorAll(".pz-rank")].map(s=>s.value); addPrizeRow(RANKS.find(r=>!used.includes(r))||"A"); };
+$("#k-save").onclick = saveKuji; $("#s-save").onclick = saveShop; $("#n-save").onclick = saveNews;
+$("#k-cancel").onclick = resetKujiForm; $("#s-cancel").onclick = resetShopForm; $("#n-cancel").onclick = resetNewsForm;
+document.addEventListener("click", async e=>{
+  if(e.target.dataset.zoom){ $("#zoomImg").src=e.target.src; $("#zoom").classList.add("show"); return; }
+  if(e.target.closest("#zoom")){ $("#zoom").classList.remove("show"); return; }
+  const k = e.target.closest("[data-id]"); if(k && !e.target.closest("#sheet") && !e.target.closest("#admin")) openDetail(k.dataset.id);
+  const n = e.target.closest(".news-row"); if(n) n.classList.toggle("open");
+  if(e.target.id==="closeBtn" || e.target.id==="modal") $("#modal").classList.remove("show");
+  const cl = e.target.closest("[data-clear]"); if(cl){ clearPhoto(cl.dataset.clear); return; }
+  const ed = e.target.closest("[data-edit]"); if(ed){ const [kind,id]=ed.dataset.edit.split(":"); startEdit(kind, Number(id)); return; }
+  const pd = e.target.closest(".pz-del"); if(pd){ pd.closest(".pz-row").remove(); return; }
+  const del = e.target.closest("[data-del]"); if(del){
+    if(del.dataset.armed){ clearTimeout(del._t); del.textContent="消し中…"; await removeRow(Number(del.dataset.del)); toast("消しました"); return; }
+    document.querySelectorAll("[data-del][data-armed]").forEach(b=>{ delete b.dataset.armed; b.textContent="消す"; b.classList.remove("armed"); });
+    del.dataset.armed="1"; del.classList.add("armed"); del.textContent="ほんとに消す？";
+    del._t=setTimeout(()=>{ delete del.dataset.armed; del.textContent="消す"; del.classList.remove("armed"); },4000); return; }
+  const lf = e.target.closest("[data-left]"); if(lf){ const [id,i,d]=lf.dataset.left.split(":"); const f=findAny(id); if(!f) return;
+    const data=stripId(f.item); const p=data.prizes[+i]; p.left=Math.max(0, Math.min(num(p.total), num(p.left)+Number(d))); await updateRow(Number(id), data); return; }
+});
+document.addEventListener("change", async e=>{
+  if(e.target.dataset.status){ const f=findAny(e.target.dataset.status); if(!f) return; const data=stripId(f.item); data.status=e.target.value; await updateRow(Number(e.target.dataset.status), data); toast("状態を変えました"); }
+});
+bindPhoto($("#k-photo"), $("#k-photo-pv")); renderSwatches(); resetPrizeRows();
+$("#n-date").value = new Date().toISOString().slice(0,10);
+init();
+</script>
+</body>
+</html>
